@@ -12,6 +12,8 @@ jobs:
           unzip -q "$(ls *.zip | head -1)" -d src_unzipped
           DIR=$(dirname "$(find src_unzipped -name settings.gradle | head -1)")
           echo "PROJECT_DIR=$DIR" >> $GITHUB_ENV
+      - name: Fix duplicate theme
+        run: rm -f "$PROJECT_DIR/app/src/main/res/values/styles.xml"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
