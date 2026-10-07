@@ -1,0 +1,29 @@
+name: Build APK
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip project
+        run: |
+          unzip -q "$(ls *.zip | head -1)" -d src_unzipped
+          DIR=$(dirname "$(find src_unzipped -name settings.gradle | head -1)")
+          echo "PROJECT_DIR=$DIR" >> $GITHUB_ENV
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.13
+      - name: Build debug APK
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: gradle assembleDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/app-debug.apk
